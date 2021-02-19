@@ -5,7 +5,9 @@ import com.solomka.secondservice.models.Book;
 import com.solomka.secondservice.models.BookDto;
 import com.solomka.secondservice.models.User;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.client.RestTemplate;
 
@@ -52,7 +54,7 @@ public class ReaderController {
     }
 
     @GetMapping(value="/readers/{id}")
-    public List<Book>getReaderBooks(
+    public ResponseEntity<List<Book>>getReaderBooks(
             @PathVariable("id") String userId
     ){
         var response = restTemplate.getForEntity(urlGetAllReaders +"/"+ userId, Object[].class);
@@ -61,12 +63,12 @@ public class ReaderController {
         List<Book> books = Arrays.stream(objects)
                 .map(object -> mapper.convertValue(object, Book.class))
                 .collect(Collectors.toList());
-        return books;
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
     @PostMapping(value="/readers/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Book getReaderBooks(
+    public Book takeBook(
             @PathVariable("id") String userId,
             @RequestBody BookDto bookDto
             ){
@@ -75,6 +77,18 @@ public class ReaderController {
         ObjectMapper mapper = new ObjectMapper();
         Book book = mapper.convertValue(object, Book.class);
         return book;
-//        return "OK";
+    }
+
+    @PostMapping(value="/readers/return/{id}",
+            consumes = MediaType.APPLICATION_JSON_VALUE)
+    public Book returnBook(
+            @PathVariable("id") String userId,
+            @RequestBody BookDto bookDto
+    ){
+        var response = restTemplate.postForEntity(urlGetAllReaders +"/return/"+ userId, bookDto, Object.class);
+        Object object = response.getBody();
+        ObjectMapper mapper = new ObjectMapper();
+        Book book = mapper.convertValue(object, Book.class);
+        return book;
     }
 }
