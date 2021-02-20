@@ -4,21 +4,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Book {
-
-    private Long bookId;
+public class CreateBookDto {
 
     private String title;
 
-    private List<Author> authors;
+    private List<Author> authors = new ArrayList<>();
 
     private int yearOfPublication;
-
-    private boolean taken;
-
 }

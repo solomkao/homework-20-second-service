@@ -7,12 +7,12 @@ import lombok.NoArgsConstructor;
 import java.util.ArrayList;
 import java.util.List;
 
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class BookDto {
 
-    private String name;
+    private String title;
+
     private List<Author> authors = new ArrayList<>();
 }
