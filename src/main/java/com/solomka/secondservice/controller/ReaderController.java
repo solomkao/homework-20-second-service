@@ -21,8 +21,8 @@ public class ReaderController {
 
     private final RestTemplate restTemplate;
 
-    private final String urlBooks = "http://localhost:8090/books";
-    private final String urlUsers = "http://localhost:8090/users";
+    private final String urlBooks = "http://localhost:8089/books";
+    private final String urlUsers = "http://localhost:8089/users";
 
     @Autowired
     public ReaderController(RestTemplate restTemplate) {
@@ -31,7 +31,7 @@ public class ReaderController {
 
 
     @GetMapping(value="/library/books")
-    public List<Book>getAvailableBooks(){
+    public ResponseEntity<List<Book>>getAvailableBooks(){
         var response = restTemplate.getForEntity(urlBooks, Object[].class);
         Object[] objects = response.getBody();
         ObjectMapper mapper = new ObjectMapper();
@@ -39,18 +39,18 @@ public class ReaderController {
                 .map(object -> mapper.convertValue(object, Book.class))
                 .filter(book -> !book.isTaken())
                 .collect(Collectors.toList());
-        return books;
+        return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
     @GetMapping(value="/library/readers")
-    public List<User>getAllReaders(){
+    public ResponseEntity<List<User>>getAllReaders(){
         var response = restTemplate.getForEntity(urlUsers, Object[].class);
         Object[] objects = response.getBody();
         ObjectMapper mapper = new ObjectMapper();
         List<User> users = Arrays.stream(objects)
                 .map(object -> mapper.convertValue(object, User.class))
                 .collect(Collectors.toList());
-        return users;
+        return new ResponseEntity<>(users, HttpStatus.OK);
     }
 
     @GetMapping(value="/library/readers/{id}")
@@ -68,7 +68,7 @@ public class ReaderController {
 
     @PostMapping(value="/library/take/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Book takeBook(
+    public ResponseEntity<Book> takeBook(
             @PathVariable("id") String userId,
             @RequestBody BookDto bookDto
             ){
@@ -76,12 +76,12 @@ public class ReaderController {
         Object object = response.getBody();
         ObjectMapper mapper = new ObjectMapper();
         Book book = mapper.convertValue(object, Book.class);
-        return book;
+        return new ResponseEntity<>(book, HttpStatus.OK);
     }
 
     @PostMapping(value="/library/return/{id}",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Book returnBook(
+    public ResponseEntity<Book> returnBook(
             @PathVariable("id") String userId,
             @RequestBody BookDto bookDto
     ){
@@ -89,18 +89,18 @@ public class ReaderController {
         Object object = response.getBody();
         ObjectMapper mapper = new ObjectMapper();
         Book book = mapper.convertValue(object, Book.class);
-        return book;
+        return new ResponseEntity<>(book, HttpStatus.OK);
     }
 
     @PostMapping(value="/library/books",
             consumes = MediaType.APPLICATION_JSON_VALUE)
-    public Book addBook(
+    public ResponseEntity<Book> addBook(
             @RequestBody CreateBookDto createBookDto
     ){
         var response = restTemplate.postForEntity(urlBooks, createBookDto, Object.class);
         Object object = response.getBody();
         ObjectMapper mapper = new ObjectMapper();
         Book book = mapper.convertValue(object, Book.class);
-        return book;
+        return new ResponseEntity<>(book, HttpStatus.OK);
     }
 }
